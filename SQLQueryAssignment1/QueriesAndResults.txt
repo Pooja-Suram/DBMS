@@ -1,0 +1,98 @@
+Question1) Find out the PG-13 rated comedy movies. DO NOT use the film_list table.
+Ans) SELECT film.film_id, film.title, film.rating, category.category_id, category.name FROM film, category, film_category WHERE film.film_id = film_category.film_id and film_category.category_id = category.category_id and film.rating = 'PG-13' and category.name = 'Comedy';
+Output) 
++---------+-------------------------+--------+-------------+--------+
+| film_id | title                   | rating | category_id | name   |
++---------+-------------------------+--------+-------------+--------+
+|       7 | AIRPLANE SIERRA         | PG-13  |           5 | Comedy |
+|      28 | ANTHEM LUKE             | PG-13  |           5 | Comedy |
+|     324 | FLINTSTONES HAPPINESS   | PG-13  |           5 | Comedy |
+|     335 | FREEDOM CLEOPATRA       | PG-13  |           5 | Comedy |
+|     385 | GROUNDHOG UNCUT         | PG-13  |           5 | Comedy |
+|     502 | KNOCK WARLOCK           | PG-13  |           5 | Comedy |
+|     657 | PARADISE SABRINA        | PG-13  |           5 | Comedy |
+|     672 | PERFECT GROOVE          | PG-13  |           5 | Comedy |
+|     754 | RUSHMORE MERMAID        | PG-13  |           5 | Comedy |
+|     756 | SADDLE ANTITRUST        | PG-13  |           5 | Comedy |
+|     857 | STRICTLY SCARFACE       | PG-13  |           5 | Comedy |
+|     905 | TRAINSPOTTING STRANGERS | PG-13  |           5 | Comedy |
++---------+-------------------------+--------+-------------+--------+
+
+
+
+
+Question2)  Find out the top 3 rented horror movies.
+Ans)
+SELECT fc.film_id, f.title, count(*) AS rent_count, c.name from rental r INNER JOIN inventory i ON r.inventory_id = i.inventory_id INNER JOIN film f ON i.film_id = f.film_id INNER JOIN film_category fc ON f.film_id = fc.film_id INNER JOIN category c ON fc.category_id = c.category_id WHERE c.name='Horror' GROUP BY fc.film_id ORDER BY rent_count desc LIMIT 3;
+
+Output)
++---------+--------------+------------+--------+
+| film_id | title        | rent_count | name   |
++---------+--------------+------------+--------+
+|     702 | PULP BEVERLY |         30 | Horror |
+|     301 | FAMILY SWEET |         29 | Horror |
+|     870 | SWARM GOLD   |         27 | Horror |
++---------+--------------+------------+--------+
+
+
+
+
+Question3) Find out the list of customers from India who have rented sports movies.
+Ans)
+ SELECT DISTINCT cus.first_name, cus.last_name, cus.email, cat.name, country.country FROM rental r, customer cus, address a, city c, country, inventory i, film_category fc, category cat WHERE r.customer_id = cus.customer_id AND cus.address_id = a.address_id AND c.city_id = a.city_id and c.country_id = country.country_id and r.inventory_id = i.inventory_id and i.film_id = fc.film_id and fc.category_id = cat.category_id and country.country = 'India' and cat.name = 'Sports' ORDER BY cus.email;
+Output)
++------------+-------------+--------------------------------------+--------+---------+
+| first_name | last_name   | email                                | name   | country |
++------------+-------------+--------------------------------------+--------+---------+
+| ADAM       | GOOCH       | ADAM.GOOCH@sakilacustomer.org        | Sports | India   |
+| ALLEN      | BUTTERFIELD | ALLEN.BUTTERFIELD@sakilacustomer.org | Sports | India   |
+| AMY        | LOPEZ       | AMY.LOPEZ@sakilacustomer.org         | Sports | India   |
+| ANITA      | MORALES     | ANITA.MORALES@sakilacustomer.org     | Sports | India   |
+| ANNETTE    | OLSON       | ANNETTE.OLSON@sakilacustomer.org     | Sports | India   |
+| ARLENE     | HARVEY      | ARLENE.HARVEY@sakilacustomer.org     | Sports | India   |
+| BEATRICE   | ARNOLD      | BEATRICE.ARNOLD@sakilacustomer.org   | Sports | India   |
+| BERNARD    | COLBY       | BERNARD.COLBY@sakilacustomer.org     | Sports | India   |
+| BRADLEY    | MOTLEY      | BRADLEY.MOTLEY@sakilacustomer.org    | Sports | India   |
+| BRETT      | CORNWELL    | BRETT.CORNWELL@sakilacustomer.org    | Sports | India   |
+| CARLOS     | COUGHLIN    | CARLOS.COUGHLIN@sakilacustomer.org   | Sports | India   |
+| CHAD       | CARBONE     | CHAD.CARBONE@sakilacustomer.org      | Sports | India   |
+| CHERYL     | MURPHY      | CHERYL.MURPHY@sakilacustomer.org     | Sports | India   |
+| CHRISTIAN  | JUNG        | CHRISTIAN.JUNG@sakilacustomer.org    | Sports | India   |
+| CYNTHIA    | YOUNG       | CYNTHIA.YOUNG@sakilacustomer.org     | Sports | India   |
+| DWAYNE     | OLVERA      | DWAYNE.OLVERA@sakilacustomer.org     | Sports | India   |
+| EDITH      | MCDONALD    | EDITH.MCDONALD@sakilacustomer.org    | Sports | India   |
+| GEORGIA    | JACOBS      | GEORGIA.JACOBS@sakilacustomer.org    | Sports | India   |
+| GERALD     | FULTZ       | GERALD.FULTZ@sakilacustomer.org      | Sports | India   |
+| HELEN      | HARRIS      | HELEN.HARRIS@sakilacustomer.org      | Sports | India   |   |
++------------+-------------+--------------------------------------+--------+---------+
+
+
+
+
+
+Question4) Find out the list of customers from Canada who have rented “NICK WAHLBERG” movies.
+Ans)
+SELECT cus.email, a.first_name, a.last_name, cnt.country from rental r, customer cus, address ad, city ci, country cnt, inventory i, film f, film_actor fa, actor a WHERE r.customer_id = cus.customer_id AND cus.address_id = ad.address_id AND ad.city_id = ci.city_id AND ci.country_id = cnt.country_id and r.inventory_id = i.inventory_id AND i.film_id = f.film_id AND f.film_id = fa.film_id AND fa.actor_id = a.actor_id and cnt.country = 'Canada' AND a.first_name = 'NICK' AND a.last_name = 'WAHLBERG';
+Output)
++--------------------------------------+------------+-----------+---------+
+| email                                | first_name | last_name | country |
++--------------------------------------+------------+-----------+---------+
+| LORETTA.CARPENTER@sakilacustomer.org | NICK       | WAHLBERG  | Canada  |
+| LORETTA.CARPENTER@sakilacustomer.org | NICK       | WAHLBERG  | Canada  |
+| DARRELL.POWER@sakilacustomer.org     | NICK       | WAHLBERG  | Canada  |
++--------------------------------------+------------+-----------+---------+
+
+
+
+
+Question5) Find out the number of movies in which “SEAN WILLIAMS” acted.
+Ans)
+SELECT a.first_name, a.last_name, count(*) num_movies FROM film f, film_actor fa, actor a WHERE f.film_id = fa.film_id AND fa.actor_id = a.actor_id AND a.first_name = 'SEAN' AND a.last_name = 'WILLIAMS';
+Output)
++------------+-----------+------------+
+| first_name | last_name | num_movies |
++------------+-----------+------------+
+| SEAN       | WILLIAMS  |         26 |
++------------+-----------+------------+
+
+
