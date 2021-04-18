@@ -27,17 +27,15 @@ Output)
 
 Question2)  Find out the top 3 rented horror movies.
 Ans)
-SELECT 
-fc.film_id, f.title, count(*) AS rent_count, c.name 
+SELECT fl.FID, fl.title, count(*) as rent_count, fl.category 
 FROM 
 rental r INNER JOIN inventory i ON r.inventory_id = i.inventory_id 
-INNER JOIN film f ON i.film_id = f.film_id 
-INNER JOIN film_category fc ON f.film_id = fc.film_id 
-INNER JOIN category c ON fc.category_id = c.category_id 
+INNER JOIN film_list fl ON i.film_id = fl.FID 
 WHERE 
-c.name='Horror' 
-GROUP BY 
-fc.film_id ORDER BY rent_count desc LIMIT 3;
+fl.category='Horror' 
+GROUP BY fl.FID 
+ORDER BY rent_count 
+DESC LIMIT 3;
 
 Output)
 +---------+--------------+------------+--------+
@@ -54,45 +52,31 @@ Output)
 Question3) Find out the list of customers from India who have rented sports movies.
 Ans)
  SELECT 
- DISTINCT cus.first_name, cus.last_name, cus.email, cat.name, country.country 
+ cl.ID, cl.name, cl.country 
  FROM 
- rental r, customer cus, address a, city c, country, inventory i, film_category fc, category cat 
+ customer_list cl 
  WHERE 
- r.customer_id = cus.customer_id 
- AND cus.address_id = a.address_id 
- AND c.city_id = a.city_id 
- AND c.country_id = country.country_id 
- AND r.inventory_id = i.inventory_id 
- AND i.film_id = fc.film_id 
- AND fc.category_id = cat.category_id 
- AND country.country = 'India' 
- AND cat.name = 'Sports' 
- ORDER BY cus.email;
+ cl.country='India' 
+ AND cl.ID IN 
+     (SELECT r.customer_id 
+     FROM rental r, inventory i, film_list fl 
+     WHERE 
+     r.inventory_id = i.inventory_id 
+     AND i.film_id = fl.FID AND fl.category='Sports') 
+ ORDER BY cl.name;
+ 
 Output)
-+------------+-------------+--------------------------------------+--------+---------+
-| first_name | last_name   | email                                | name   | country |
-+------------+-------------+--------------------------------------+--------+---------+
-| ADAM       | GOOCH       | ADAM.GOOCH@sakilacustomer.org        | Sports | India   |
-| ALLEN      | BUTTERFIELD | ALLEN.BUTTERFIELD@sakilacustomer.org | Sports | India   |
-| AMY        | LOPEZ       | AMY.LOPEZ@sakilacustomer.org         | Sports | India   |
-| ANITA      | MORALES     | ANITA.MORALES@sakilacustomer.org     | Sports | India   |
-| ANNETTE    | OLSON       | ANNETTE.OLSON@sakilacustomer.org     | Sports | India   |
-| ARLENE     | HARVEY      | ARLENE.HARVEY@sakilacustomer.org     | Sports | India   |
-| BEATRICE   | ARNOLD      | BEATRICE.ARNOLD@sakilacustomer.org   | Sports | India   |
-| BERNARD    | COLBY       | BERNARD.COLBY@sakilacustomer.org     | Sports | India   |
-| BRADLEY    | MOTLEY      | BRADLEY.MOTLEY@sakilacustomer.org    | Sports | India   |
-| BRETT      | CORNWELL    | BRETT.CORNWELL@sakilacustomer.org    | Sports | India   |
-| CARLOS     | COUGHLIN    | CARLOS.COUGHLIN@sakilacustomer.org   | Sports | India   |
-| CHAD       | CARBONE     | CHAD.CARBONE@sakilacustomer.org      | Sports | India   |
-| CHERYL     | MURPHY      | CHERYL.MURPHY@sakilacustomer.org     | Sports | India   |
-| CHRISTIAN  | JUNG        | CHRISTIAN.JUNG@sakilacustomer.org    | Sports | India   |
-| CYNTHIA    | YOUNG       | CYNTHIA.YOUNG@sakilacustomer.org     | Sports | India   |
-| DWAYNE     | OLVERA      | DWAYNE.OLVERA@sakilacustomer.org     | Sports | India   |
-| EDITH      | MCDONALD    | EDITH.MCDONALD@sakilacustomer.org    | Sports | India   |
-| GEORGIA    | JACOBS      | GEORGIA.JACOBS@sakilacustomer.org    | Sports | India   |
-| GERALD     | FULTZ       | GERALD.FULTZ@sakilacustomer.org      | Sports | India   |
-| HELEN      | HARRIS      | HELEN.HARRIS@sakilacustomer.org      | Sports | India   |   |
-+------------+-------------+--------------------------------------+--------+---------+
++-----+-------------------+---------+
+| ID  | name              | country |
++-----+-------------------+---------+
+| 367 | ADAM GOOCH        | India   |
+| 412 | ALLEN BUTTERFIELD | India   |
+|  32 | AMY LOPEZ         | India   |
+| 136 | ANITA MORALES     | India   |
+| 175 | ANNETTE OLSON     | India   |
+| 225 | ARLENE HARVEY     | India   |
++-----+-------------------+---------+
+49 rows in set (0.01 sec)
 
 
 
@@ -101,46 +85,44 @@ Output)
 Question4) Find out the list of customers from Canada who have rented “NICK WAHLBERG” movies.
 Ans)
 SELECT 
-cus.email, a.first_name, a.last_name, cnt.country 
-FROM rental r, customer cus, address ad, city ci, country cnt, inventory i, film f, film_actor fa, actor a 
-WHERE 
-r.customer_id = cus.customer_id 
-AND cus.address_id = ad.address_id 
-AND ad.city_id = ci.city_id 
-AND ci.country_id = cnt.country_id 
-AND r.inventory_id = i.inventory_id 
-AND i.film_id = f.film_id 
-AND f.film_id = fa.film_id 
-AND fa.actor_id = a.actor_id 
-AND cnt.country = 'Canada' 
-AND a.first_name = 'NICK' 
-AND a.last_name = 'WAHLBERG';
+cl.ID, cl.name, cl.country 
+FROM customer_list cl 
+WHERE
+cl.country='Canada' 
+AND cl.ID IN 
+    (SELECT r.customer_id 
+    FROM
+    rental r, inventory i, film_list fl 
+    WHERE r.inventory_id = i.inventory_id 
+    AND 
+    i.film_id = fl.FID 
+    AND 
+    INSTR(fl.actors, 'NICK WAHLBERG')>0 );
+
 Output)
-+--------------------------------------+------------+-----------+---------+
-| email                                | first_name | last_name | country |
-+--------------------------------------+------------+-----------+---------+
-| LORETTA.CARPENTER@sakilacustomer.org | NICK       | WAHLBERG  | Canada  |
-| LORETTA.CARPENTER@sakilacustomer.org | NICK       | WAHLBERG  | Canada  |
-| DARRELL.POWER@sakilacustomer.org     | NICK       | WAHLBERG  | Canada  |
-+--------------------------------------+------------+-----------+---------+
++-----+-------------------+---------+
+| ID  | name              | country |
++-----+-------------------+---------+
+| 463 | DARRELL POWER     | Canada  |
+| 189 | LORETTA CARPENTER | Canada  |
++-----+-------------------+---------+
+
 
 
 
 
 Question5) Find out the number of movies in which “SEAN WILLIAMS” acted.
 Ans)
-SELECT 
-a.first_name, a.last_name, count(*) num_movies 
-FROM film f, film_actor fa, actor a 
-WHERE f.film_id = fa.film_id 
-AND fa.actor_id = a.actor_id 
-AND a.first_name = 'SEAN' 
-AND a.last_name = 'WILLIAMS';
+SELECT count(*) AS num_of_movies 
+FROM film_list 
+WHERE
+INSTR(actors, 'SEAN WILLIAMS')>0;
 Output)
-+------------+-----------+------------+
-| first_name | last_name | num_movies |
-+------------+-----------+------------+
-| SEAN       | WILLIAMS  |         26 |
-+------------+-----------+------------+
++---------------+
+| num_of_movies |
++---------------+
+|            26 |
++---------------+
+
 
 
