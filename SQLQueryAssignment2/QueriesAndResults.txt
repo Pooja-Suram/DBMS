@@ -20,21 +20,21 @@ Output)
 Question2) Find out the number of sci-fi movies rented by the store managed by Jon Stephens.
 Ans)
 SELECT 
-count(*) num_docs 
-FROM 
-rental r INNER JOIN inventory i ON r.inventory_id = i.inventory_id 
-INNER JOIN film_category fc ON i.film_id = fc.film_id 
-INNER JOIN category c ON fc.category_id = c.category_id 
-INNER JOIN staff s ON r.staff_id = s.staff_id 
+count(*) AS num_of_scifi 
+FROM rental r, inventory i, film_list fl 
 WHERE 
-s.first_name = 'Jon' AND s.last_name = 'Stephens' AND c.name = 'Sci-Fi';
+r.inventory_id = i.inventory_id 
+AND i.film_id = fl.FID AND fl.category='Sci-Fi' 
+AND 
+r.staff_id = 
+(SELECT staff_id FROM staff WHERE first_name = 'Jon' AND last_name='Stephens');
 
 Output)
-+----------+
-| num_docs |
-+----------+
-|      548 |
-+----------+
++--------------+
+| num_of_scifi |
++--------------+
+|          548 |
++--------------+
 
 
 Question3) Find out the total sales from Animation movies.
@@ -44,10 +44,9 @@ c.name, sum(p.amount) total
 FROM 
 rental r INNER JOIN payment p ON p.rental_id = r.rental_id  
 INNER JOIN inventory i ON i.inventory_id = r.inventory_id 
-INNER JOIN film_category fc ON fc.film_id = i.film_id 
-INNER JOIN category c ON fc.category_id = c.category_id 
+INNER JOIN film_list fl ON i.film_id = fl.FID
 WHERE 
-c.name = 'Animation';
+fl.category = 'Animation';
 Output)
 +-----------+---------+
 | name      | total   |
@@ -60,16 +59,15 @@ Output)
 Question4) Find out the top 3 rented category of movies by “PATRICIA JOHNSON”.
 Ans)
 SELECT 
-cat.name category_name, count(*) count 
+fl.category category_name, count(*) count 
 FROM 
 customer c INNER JOIN rental r ON r.customer_id = c.customer_id 
 INNER JOIN inventory i ON r.inventory_id = i.inventory_id 
-INNER JOIN film_category f ON f.film_id = i.film_id 
-INNER JOIN category cat ON f.category_id = cat.category_id 
+INNER JOIN film_list fl ON i.film_id = fl.FID 
 WHERE 
 c.first_name = 'PATRICIA' 
 GROUP BY 
-cat.name, c.first_name, c.last_name 
+fl.category, c.first_name, c.last_name 
 ORDER BY 
 count 
 DESC LIMIT 3;
