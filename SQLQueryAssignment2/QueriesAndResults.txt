@@ -1,0 +1,107 @@
+Question1) Find out the number of documentaries with deleted scenes.
+Ans)
+SELECT 
+count(*) count 
+FROM film 
+WHERE 
+special_features = 'Deleted Scenes';
+
+Output)
++-------+
+| count |
++-------+
+|    61 |
++-------+
+
+
+
+
+
+Question2) Find out the number of sci-fi movies rented by the store managed by Jon Stephens.
+Ans)
+SELECT 
+count(*) AS num_of_scifi 
+FROM rental r, inventory i, film_list fl 
+WHERE 
+r.inventory_id = i.inventory_id 
+AND i.film_id = fl.FID AND fl.category='Sci-Fi' 
+AND 
+r.staff_id = 
+(SELECT staff_id FROM staff WHERE first_name = 'Jon' AND last_name='Stephens');
+
+Output)
++--------------+
+| num_of_scifi |
++--------------+
+|          548 |
++--------------+
+
+
+Question3) Find out the total sales from Animation movies.
+Ans)
+SELECT 
+c.name, sum(p.amount) total 
+FROM 
+rental r INNER JOIN payment p ON p.rental_id = r.rental_id  
+INNER JOIN inventory i ON i.inventory_id = r.inventory_id 
+INNER JOIN film_list fl ON i.film_id = fl.FID
+WHERE 
+fl.category = 'Animation';
+Output)
++-----------+---------+
+| name      | total   |
++-----------+---------+
+| Animation | 4656.30 |
++-----------+---------+
+
+
+
+Question4) Find out the top 3 rented category of movies by “PATRICIA JOHNSON”.
+Ans)
+SELECT 
+fl.category category_name, count(*) count 
+FROM 
+customer c INNER JOIN rental r ON r.customer_id = c.customer_id 
+INNER JOIN inventory i ON r.inventory_id = i.inventory_id 
+INNER JOIN film_list fl ON i.film_id = fl.FID 
+WHERE 
+c.first_name = 'PATRICIA' 
+GROUP BY 
+fl.category, c.first_name, c.last_name 
+ORDER BY 
+count 
+DESC LIMIT 3;
+Output)
++---------------+-------+
+| category_name | count |
++---------------+-------+
+| Sports        |     5 |
+| Classics      |     4 |
+| Animation     |     3 |
++---------------+-------+
+
+
+
+
+
+Question5) Find out the number of R rated movies rented by “SUSAN WILSON”.
+Ans)
+SELECT 
+cus.first_name, cus.last_name, f.rating, count(*) count 
+FROM customer cus INNER JOIN rental r ON r.customer_id = cus.customer_id 
+INNER JOIN inventory i ON r.inventory_id = i.inventory_id 
+INNER JOIN film f ON f.film_id = i.film_id 
+WHERE 
+f.rating = 'R' AND cus.first_name = 'SUSAN' AND cus.last_name = 'WILSON' 
+GROUP BY 
+cus.first_name, cus.last_name, f.rating 
+ORDER BY cus.last_name;
+Output)
++------------+-----------+--------+-------+
+| first_name | last_name | rating | count |
++------------+-----------+--------+-------+
+| SUSAN      | WILSON    | R      |     3 |
++------------+-----------+--------+-------+
+
+
+
